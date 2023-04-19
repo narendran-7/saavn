@@ -14,9 +14,19 @@ class Saavn:
         driver.get(url)
 
         driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[1]/div/main/div[2]/figure/figcaption/div/p[1]/a').click()
+        
+        logs = driver.get_log("browser")
+
+        for tmp in logs:
+            print("------> ", tmp)
         print("okkkkkk")
 
 
 
+import httpx
+
 if __name__ == "__main__":
-    spark = Saavn("https://www.jiosaavn.com/song/raawadi/QCAGQjNiYHw")
+    pass
+    #spark = Saavn("https://www.jiosaavn.com/song/raawadi/QCAGQjNiYHw")
+
+# 
