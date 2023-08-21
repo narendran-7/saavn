@@ -9,6 +9,7 @@ __pycache__/
 #own
 *.log
 *.exe
+*.mp3
 
 # Distribution / packaging
 .Python

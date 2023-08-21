@@ -23,10 +23,19 @@ class Saavn:
         des_cipher = des(b"38346591", ECB, b"\0\0\0\0\0\0\0\0",pad=None, padmode=PAD_PKCS5)
         enc_url = b64decode(self.encrypted_url.strip())
         dec_url = des_cipher.decrypt(enc_url, padmode=PAD_PKCS5).decode('utf-8').replace("_96.mp4", "_320.mp4")
-        print(dec_url)
         return dec_url
 
+    def download_song(self):
+        get_song = get(self.decrypt_url())
+        totalbits = 0
+        if get_song.status_code == 200:
+            with open("song.mp3","wb+") as f:
+                for chunk in get_song.iter_content(chunk_size=1024):
+                    if chunk:
+                        totalbits += 1024
+                        #print("Downloaded",totalbits*1025,"KB...")
+                        f.write(chunk)
 
 if __name__ == "__main__":
     spark = Saavn()
-    spark.decrypt_url()
+    spark.download_song()
