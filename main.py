@@ -4,11 +4,11 @@ from base64 import b64decode
 from pyDes import des, ECB, PAD_PKCS5
 
 class Saavn:
-    def __init__(self):
-        req = get("https://www.jiosaavn.com/song/hukum-thalaivar-alappara-from-jailer/ACQeWj9ScVI").content
+    def __init__(self, url):
+        req = get(url).content
 
-        soup_obj = soup(req, "html.parser")
-        data = str(soup_obj.find_all("script")[4])[1400:]
+        self.soup_obj = soup(req, "html.parser")
+        data = str(self.soup_obj.find_all("script")[4])[1400:]
 
         field_name = "encrypted_media_url"
         start_index_key = data.index(field_name) + 22
@@ -35,7 +35,33 @@ class Saavn:
                         totalbits += 1024
                         #print("Downloaded",totalbits*1025,"KB...")
                         f.write(chunk)
+    
+    def song_info(self):
+        song_image_url = self.soup_obj.find_all("img")[0]["src"]
+
+        song_title = self.soup_obj.find_all("h1", {"class":"u-h2 u-margin-bottom-tiny@sm"})[0].text
+
+        s = song_title.index("(") 
+        song_name = song_title[:s]
+        song_album = song_title[s + 7 :-2]
+
+        created_by_items = self.soup_obj.find_all("p", {"class":"u-color-js-gray u-ellipsis@lg u-margin-bottom@sm u-margin-bottom-tiny@lg"})[0]
+        artist = created_by_items.find_all("a")
+        art_list = ",".join([i["title"].strip() for i in artist])
+
+        song_company = self.soup_obj.find_all("p", {"class":"u-color-js-gray u-ellipsis@lg u-visible@lg"})[0]
+        song_company_name = song_company.find_all("a")[0]["title"]
+
+        #song_lyrics = self.soup_obj.find_all("a", {"screen_name":"song_screen"})
+
+        print(song_image_url)
+        print(song_name)
+        print(song_album)
+        print(art_list)
+        print(song_company_name)
+        #print(song_lyrics)
 
 if __name__ == "__main__":
-    spark = Saavn()
-    spark.download_song()
+    spark = Saavn("https://www.jiosaavn.com/album/tum-tum-from-enemy-tamil/7,2NZ-6v4M0_")
+    #spark.download_song()
+    spark.song_info()
