@@ -1,45 +1,32 @@
-from selenium import webdriver
-from os import path
-from selenium.webdriver.common.by import By 
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options
+from requests import get
+from bs4 import BeautifulSoup as soup
+from base64 import b64decode
+from pyDes import des, ECB, PAD_PKCS5
 
 class Saavn:
-    def __init__(self, url):
+    def __init__(self):
+        req = get("https://www.jiosaavn.com/song/hukum-thalaivar-alappara-from-jailer/ACQeWj9ScVI").content
 
-        get_path = path.dirname(path.dirname(__file__))
+        soup_obj = soup(req, "html.parser")
+        data = str(soup_obj.find_all("script")[4])[1400:]
 
-        driver_bin = f'{get_path}/geckodriver.exe'
+        field_name = "encrypted_media_url"
+        start_index_key = data.index(field_name) + 22
 
-        firefox_options = Options()
-        firefox_options.add_argument('-headless')
+        end_data = data[start_index_key : ]
+        end_index_key = end_data.index('"') 
 
-        driver_service = Service(driver_bin)
-
-        driver = webdriver.Firefox(service=driver_service, options=firefox_options)
-
-        driver.get(url)
-
-        driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div[1]/div/main/div[2]/figure/figcaption/div/p[1]/a').click()
+        s_data = data[start_index_key : ]
+        self.encrypted_url = s_data[: end_index_key]
         
-        # logs = driver.get_log('performance')
+    def decrypt_url(self):
+        des_cipher = des(b"38346591", ECB, b"\0\0\0\0\0\0\0\0",pad=None, padmode=PAD_PKCS5)
+        enc_url = b64decode(self.encrypted_url.strip())
+        dec_url = des_cipher.decrypt(enc_url, padmode=PAD_PKCS5).decode('utf-8').replace("_96.mp4", "_320.mp4")
+        print(dec_url)
+        return dec_url
 
-        # print(logs)
-
-        # for tmp in logs:
-        #     print("------> ", tmp)
-        print("okkkkkk")
-        print(driver.title)
-
-        # Quit the WebDriver
-        driver.quit()
-
-
-
-import httpx
 
 if __name__ == "__main__":
-    # pass
-    spark = Saavn("https://www.jiosaavn.com/song/raawadi/QCAGQjNiYHw")
-
-# 
+    spark = Saavn()
+    spark.decrypt_url()
