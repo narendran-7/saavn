@@ -36,7 +36,7 @@ class Saavn:
                         #print("Downloaded",totalbits*1025,"KB...")
                         f.write(chunk)
     
-    def song_info(self):
+    def get_song_info(self):
         song_image_url = self.soup_obj.find_all("img")[0]["src"]
 
         song_title = self.soup_obj.find_all("h1", {"class":"u-h2 u-margin-bottom-tiny@sm"})[0].text
@@ -54,14 +54,17 @@ class Saavn:
 
         #song_lyrics = self.soup_obj.find_all("a", {"screen_name":"song_screen"})
 
-        print(song_image_url)
-        print(song_name)
-        print(song_album)
-        print(art_list)
-        print(song_company_name)
         #print(song_lyrics)
 
+        return {
+            "song_name":song_name,
+            "song_album":song_album,
+            "artist_name":art_list,
+            "song_owned":song_company_name,
+            "song_img_url":song_image_url,
+        }
+
 if __name__ == "__main__":
-    spark = Saavn("https://www.jiosaavn.com/album/tum-tum-from-enemy-tamil/7,2NZ-6v4M0_")
-    #spark.download_song()
-    spark.song_info()
+    spark = Saavn("https://www.jiosaavn.com/song/glimpse-of-harold-das-from-leo/FT0RST5SdVo")
+    spark.download_song()
+    print(spark.get_song_info())

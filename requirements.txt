@@ -1,3 +1,4 @@
 requests
 pyDes
 bs4
+tinytag
